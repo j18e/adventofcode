@@ -19,6 +19,9 @@ var input = []string{
 	"5,5 -> 8,2",
 }
 
+func TestLine_Points(t *testing.T) {
+}
+
 func Test_reInputLine(t *testing.T) {
 	exp := []string{"0", "9", "5", "9"}
 	got := reInputLine.FindStringSubmatch(input[0])
