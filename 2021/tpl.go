@@ -8,16 +8,14 @@ import (
 
 func main() {
 	input := inputting.GetInput("input.txt")
-	part1(input)
-	part2(input)
+	fmt.Println(part1(input))
+	fmt.Println(part2(input))
 }
 
-func part1(input string) {
-	res := 0
-	fmt.Println(res)
+func part1(input string) int {
+	return 0
 }
 
-func part2(input string) {
-	res := 0
-	fmt.Println(res)
+func part2(input string) int {
+	return 0
 }
