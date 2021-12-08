@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 
+	"github.com/j18e/adventofcode/pkg/converting"
 	"github.com/j18e/adventofcode/pkg/inputting"
 )
 
 func main() {
-	input := inputting.GetInput("input.txt")
+	input := inputting.GetInputStrings("input.txt")
 	fmt.Println(part1(input))
 	fmt.Println(part2(input))
 }
@@ -30,14 +30,8 @@ func part1(input []string) int {
 			epsilonStr += "0"
 		}
 	}
-	gamma, err := strconv.ParseInt(gammaStr, 2, 64)
-	if err != nil {
-		panic(err)
-	}
-	epsilon, err := strconv.ParseInt(epsilonStr, 2, 64)
-	if err != nil {
-		panic(err)
-	}
+	gamma := converting.Btoi(gammaStr)
+	epsilon := converting.Btoi(epsilonStr)
 	return int(gamma) * int(epsilon)
 }
 
@@ -60,10 +54,7 @@ func part2(input []string) int {
 	if l := len(o2Lines); l != 1 {
 		panic(fmt.Sprintf("got %d o2 results, expected 1", l))
 	}
-	o2, err := strconv.ParseInt(o2Lines[0], 2, 64)
-	if err != nil {
-		panic(err)
-	}
+	o2 := converting.Btoi(o2Lines[0])
 
 	// calculate co2
 	co2Lines := append([]string{}, input...)
@@ -81,12 +72,9 @@ func part2(input []string) int {
 	if l := len(co2Lines); l != 1 {
 		panic(fmt.Sprintf("got %d co2 results, expected 1", l))
 	}
-	co2, err := strconv.ParseInt(co2Lines[0], 2, 64)
-	if err != nil {
-		panic(err)
-	}
+	co2 := converting.Btoi(co2Lines[0])
 
-	return int(o2) * int(co2)
+	return o2 * co2
 }
 
 func filterByBit(input []string, pos int, bit rune) []string {

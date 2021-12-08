@@ -12,12 +12,12 @@ func main() {
 	part2(input)
 }
 
-func part1(input []string) {
+func part1(input string) {
 	res := 0
 	fmt.Println(res)
 }
 
-func part2(input []string) {
+func part2(input string) {
 	res := 0
 	fmt.Println(res)
 }

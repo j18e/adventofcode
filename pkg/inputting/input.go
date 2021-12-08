@@ -6,32 +6,35 @@ import (
 	"strings"
 )
 
-func GetInput(name string) []string {
+func GetInput(name string) string {
 	bs, err := ioutil.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}
+	return string(bs)
+}
 
-	var input []string
-	for _, ln := range strings.Split(string(bs), "\n") {
+func GetInputStrings(name string) []string {
+	var res []string
+	for _, ln := range strings.Split(GetInput(name), "\n") {
 		if ln == "" {
 			continue
 		}
-		input = append(input, ln)
+		res = append(res, ln)
 	}
 
-	return input
+	return res
 }
 
 func GetInputInts(name string) []int {
-	var input []int
-	for _, ln := range GetInput(name) {
+	var res []int
+	for _, ln := range GetInputStrings(name) {
 		n, err := strconv.Atoi(ln)
 		if err != nil {
 			panic(err)
 		}
-		input = append(input, n)
+		res = append(res, n)
 	}
 
-	return input
+	return res
 }

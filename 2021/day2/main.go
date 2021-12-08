@@ -22,7 +22,7 @@ type Command struct {
 }
 
 func main() {
-	input := inputting.GetInput("input.txt")
+	input := inputting.GetInputStrings("input.txt")
 	part1(input)
 	part2(input)
 }
