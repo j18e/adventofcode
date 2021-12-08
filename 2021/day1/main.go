@@ -2,22 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
 
-	"github.com/j18e/adventofcode/pkg/input"
+	"github.com/j18e/adventofcode/pkg/inputting"
 )
 
 func main() {
-	if err := run(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func run() error {
-	input := input.GetInput("input.txt")
+	input := inputting.GetInputInts("input.txt")
 	part1(input)
 	part2(input)
-	return nil
 }
 
 func part1(input []int) {

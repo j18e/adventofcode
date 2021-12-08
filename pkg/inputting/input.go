@@ -1,4 +1,4 @@
-package input
+package inputting
 
 import (
 	"io/ioutil"
@@ -6,17 +6,26 @@ import (
 	"strings"
 )
 
-func GetInput(name string) []int {
+func GetInput(name string) []string {
 	bs, err := ioutil.ReadFile(name)
 	if err != nil {
 		panic(err)
 	}
 
-	var input []int
+	var input []string
 	for _, ln := range strings.Split(string(bs), "\n") {
 		if ln == "" {
 			continue
 		}
+		input = append(input, ln)
+	}
+
+	return input
+}
+
+func GetInputInts(name string) []int {
+	var input []int
+	for _, ln := range GetInput(name) {
 		n, err := strconv.Atoi(ln)
 		if err != nil {
 			panic(err)
