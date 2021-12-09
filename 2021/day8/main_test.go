@@ -31,9 +31,24 @@ func Test_sortString(t *testing.T) {
 	assert.Equal(t, exp, got)
 }
 
-func Test_deriveMappings(t *testing.T) {
-	entry := Entry{
-		Patterns: []string{"acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab"},
-		Output:   []string{"cdfeb", "fcadb", "cdfeb", "cdbaf"},
+func Test_commonLetters(t *testing.T) {
+	for _, tt := range []struct {
+		d1, d2 string
+		exp    int
+	}{
+		{"abc", "", 0},
+		{"abc", "cab", 3},
+		{"", "abc", 0},
+	} {
+		assert.Equal(t, tt.exp, commonLetters(tt.d1, tt.d2))
 	}
+}
+
+func Test_findPatterns(t *testing.T) {
+	input := []string{"acedgfb", "cdfbe", "gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab"}
+	sortStrings(input)
+	exp := []string{"cagedb", "ab", "gcdfa", "fbcad", "eafb", "cdfbe", "cdfgeb", "dab", "acedgfb", "cefabd"}
+	sortStrings(exp)
+	got := findPatterns(input)
+	assert.Equal(t, exp, got)
 }
