@@ -13,7 +13,7 @@ var reInputLine = regexp.MustCompile(`(\d+),(\d+) -> (\d+),(\d+)`)
 func main() {
 	lines := parseInput(inputting.GetInputStrings("input.txt"))
 	fmt.Println(part1(lines))
-	// fmt.Println(part2(input))
+	fmt.Println(part2(lines))
 }
 
 type Coord struct {
@@ -67,9 +67,17 @@ func parseInput(input []string) []Line {
 }
 
 func part1(lines []Line) int {
+	return countOverlaps(lines, true)
+}
+
+func part2(lines []Line) int {
+	return countOverlaps(lines, false)
+}
+
+func countOverlaps(lines []Line, skipDiagonal bool) int {
 	counts := make(map[Coord]int)
 	for _, line := range lines {
-		if line.Diagonal() {
+		if skipDiagonal && line.Diagonal() {
 			continue
 		}
 		for _, point := range line.Points() {
@@ -83,8 +91,4 @@ func part1(lines []Line) int {
 		}
 	}
 	return res
-}
-
-func part2(input string) int {
-	return 0
 }
