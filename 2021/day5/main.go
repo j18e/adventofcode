@@ -16,30 +16,38 @@ func main() {
 	// fmt.Println(part2(input))
 }
 
-type Coordinate struct {
+type Coord struct {
 	X, Y int
 }
 
 type Line struct {
-	X1, X2, Y1, Y2 int
+	Start Coord
+	End   Coord
 }
 
 func (l Line) Diagonal() bool {
-	return l.X1 == l.X2 || l.Y1 == l.Y2
+	return !(l.Start.X == l.End.X || l.Start.Y == l.End.Y)
 }
 
-func (l Line) Points() []Coordinate {
-	var res []Coordinate
-	var x, y int
+func (l Line) Points() []Coord {
+	x, y := l.Start.X, l.Start.Y
+	if x == l.End.X && y == l.End.Y {
+		return []Coord{{x, y}}
+	}
+	res := []Coord{{x, y}}
 	for {
-		if x < l.X2 {
+		if x < l.End.X {
 			x++
+		} else if x > l.End.X {
+			x--
 		}
-		if y < l.Y2 {
+		if y < l.End.Y {
 			y++
+		} else if y > l.End.Y {
+			y--
 		}
-		res = append(res, Coordinate{x, y})
-		if x == l.X2 && y == l.Y2 {
+		res = append(res, Coord{x, y})
+		if x == l.End.X && y == l.End.Y {
 			break
 		}
 	}
@@ -51,24 +59,30 @@ func parseInput(input []string) []Line {
 	for _, ln := range input {
 		matches := reInputLine.FindStringSubmatch(ln)
 		res = append(res, Line{
-			X1: converting.Atoi(matches[1]),
-			X2: converting.Atoi(matches[2]),
-			Y1: converting.Atoi(matches[3]),
-			Y2: converting.Atoi(matches[4]),
+			Start: Coord{converting.Atoi(matches[1]), converting.Atoi(matches[2])},
+			End:   Coord{converting.Atoi(matches[3]), converting.Atoi(matches[4])},
 		})
 	}
 	return res
 }
 
 func part1(lines []Line) int {
-	counts := make(map[Coordinate]int)
+	counts := make(map[Coord]int)
 	for _, line := range lines {
 		if line.Diagonal() {
 			continue
 		}
+		for _, point := range line.Points() {
+			counts[point]++
+		}
 	}
-
-	return 0
+	var res int
+	for _, cnt := range counts {
+		if cnt > 1 {
+			res++
+		}
+	}
+	return res
 }
 
 func part2(input string) int {
