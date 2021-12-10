@@ -11,7 +11,7 @@ import (
 func main() {
 	input := ParseEntries(inputting.GetInputStrings("input.txt"))
 	fmt.Println(part1(input))
-	// fmt.Println(part2(input))
+	fmt.Println(part2(input))
 }
 
 func ParseEntries(input []string) []Entry {
@@ -24,10 +24,14 @@ func ParseEntries(input []string) []Entry {
 
 func ParseEntry(input string) Entry {
 	split := strings.Split(input, "|")
-	return Entry{
-		Patterns: strings.Split(split[0], " "),
-		Output:   strings.Split(split[1], " "),
+	var e Entry
+	for _, s := range strings.Fields(split[0]) {
+		e.Patterns = append(e.Patterns, sortString(s))
 	}
+	for _, s := range strings.Fields(split[1]) {
+		e.Output = append(e.Output, sortString(s))
+	}
+	return e
 }
 
 type Entry struct {
@@ -48,24 +52,40 @@ func part1(entries []Entry) int {
 	return res
 }
 
-var lengths = map[int][]int{
-	2: {1},
-	3: {7},
-	4: {4},
-	5: {2, 3, 5},
-	6: {0, 6, 9},
-	7: {8},
-}
-
 func part2(entries []Entry) int {
-	return 0
+	var res int
+	for _, e := range entries {
+		res += e.ResolveOutput()
+	}
+	return res
 }
 
-func findPatterns(patterns []string) []string {
-	sortStrings(patterns)
+func (e Entry) ResolveOutput() int {
+	var res int
+	if l := len(e.Output); l != 4 {
+		panic(fmt.Sprintf("output should be 4 words long but is %d: %v", l, e.Output))
+	}
+	mappings := e.FindPatterns()
+	for i, o := range e.Output {
+		d := mappings[o]
+		switch i {
+		case 0:
+			res += d * 1000
+		case 1:
+			res += d * 100
+		case 2:
+			res += d * 10
+		case 3:
+			res += d
+		}
+	}
+	return res
+}
+
+func (e Entry) FindPatterns() map[string]int {
 	var zero, one, two, three, four, five, six, seven, eight, nine string
 	var zeroSixNine, twoThreeFive []string
-	for _, val := range patterns {
+	for _, val := range e.Patterns {
 		switch len(val) {
 		case 2:
 			one = val
@@ -106,17 +126,17 @@ func findPatterns(patterns []string) []string {
 		}
 	}
 
-	return []string{
-		zero,
-		one,
-		two,
-		three,
-		four,
-		five,
-		six,
-		seven,
-		eight,
-		nine,
+	return map[string]int{
+		zero:  0,
+		one:   1,
+		two:   2,
+		three: 3,
+		four:  4,
+		five:  5,
+		six:   6,
+		seven: 7,
+		eight: 8,
+		nine:  9,
 	}
 }
 
@@ -132,14 +152,23 @@ func commonLetters(d1, d2 string) int {
 	return res
 }
 
-func sortStrings(ix []string) {
+func sortStrings(ix []string) []string {
+	var res []string
 	for i := range ix {
-		ix[i] = sortString(ix[i])
+		res = append(res, sortString(ix[i]))
 	}
+	return res
 }
 
 func sortString(input string) string {
-	split := strings.Split(input, "")
-	sort.Strings(split)
-	return strings.Join(split, "")
+	input = strings.TrimSpace(input)
+	if input == "" {
+		panic("sortString with empty string not allowed")
+	}
+	var sx []string
+	for _, r := range input {
+		sx = append(sx, string(r))
+	}
+	sort.Strings(sx)
+	return strings.Join(sx, "")
 }
