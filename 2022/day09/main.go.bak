@@ -1,0 +1,150 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
+	"github.com/j18e/adventofcode/2022/common"
+)
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	input := common.ReadInput("input.txt")
+	var moves []Move
+	for _, ln := range input {
+		split := strings.Split(ln, " ")
+		cnt, err := strconv.Atoi(split[1])
+		if err != nil {
+			return err
+		}
+		moves = append(moves, Move{split[0], cnt})
+	}
+
+	grid := &Grid{
+		Head:        Coord{0, 0},
+		Tail:        Coord{0, 0},
+		TailVisited: make(map[string]bool),
+	}
+	grid.MarkTailVisited()
+	for _, m := range moves {
+		for i := 0; i < m.Count; i++ {
+			switch m.Direction {
+			case "L":
+				grid.Head.x--
+			case "R":
+				grid.Head.x++
+			case "U":
+				grid.Head.y--
+			case "D":
+				grid.Head.y++
+			default:
+				return fmt.Errorf("unrecognized direction %s", m.Direction)
+			}
+			grid.TailFollow()
+		}
+	}
+	fmt.Println("part 1:", len(grid.TailVisited))
+
+	return nil
+}
+
+type Move struct {
+	Direction string
+	Count     int
+}
+
+type Grid struct {
+	Head, Tail  Coord
+	TailVisited map[string]bool
+	TailLog     []string
+}
+
+func (g *Grid) String() string {
+	return fmt.Sprintf("%d,%d..%d,%d", g.Head.x, g.Head.y, g.Tail.x, g.Tail.y)
+}
+
+func (g *Grid) MarkTailVisited() {
+	g.TailVisited[g.Tail.String()] = true
+	g.TailLog = append(g.TailLog, g.Tail.String())
+}
+
+func (g *Grid) TailFollow() bool {
+	if g.Adjacent() {
+		return false
+	}
+	if g.Head.x == g.Tail.x {
+		// head is below tail
+		if g.Head.y > g.Tail.y {
+			g.Tail.y++
+		}
+		// head is above tail
+		if g.Head.y < g.Tail.y {
+			g.Tail.y--
+		}
+		g.MarkTailVisited()
+		return true
+	}
+	if g.Head.y == g.Tail.y {
+		// head is right of tail
+		if g.Head.x > g.Tail.x {
+			g.Tail.x++
+		}
+		// head is left of tail
+		if g.Head.x < g.Tail.x {
+			g.Tail.x--
+		}
+		g.MarkTailVisited()
+		return true
+	}
+	// diagonal
+	xDiff := g.Head.x - g.Tail.x
+	yDiff := g.Head.y - g.Tail.y
+	if xDiff < 0 {
+		xDiff *= -1
+	}
+	if yDiff < 0 {
+		yDiff *= -1
+	}
+	if xDiff > yDiff {
+		g.Tail.y = g.Head.y
+		g.TailFollow()
+		return true
+	}
+	if xDiff < yDiff {
+		g.Tail.x = g.Head.x
+		g.TailFollow()
+		return true
+	}
+	panic("xdiff == ydiff")
+}
+
+func (g *Grid) Adjacent() bool {
+	xDiff := g.Head.x - g.Tail.x
+	yDiff := g.Head.y - g.Tail.y
+	switch xDiff {
+	case -1, 0, 1:
+	default:
+		return false
+	}
+	switch yDiff {
+	case -1, 0, 1:
+	default:
+		return false
+	}
+	return true
+}
+
+type Coord struct {
+	x, y int
+}
+
+func (c Coord) String() string {
+	return fmt.Sprintf("%d,%d", c.x, c.y)
+}
