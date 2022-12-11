@@ -12,3 +12,11 @@ func ReadInput(file string) []string {
 	}
 	return strings.Split(strings.TrimSpace(string(bs)), "\n")
 }
+
+func ReadInputString(file string) string {
+	bs, err := os.ReadFile(file)
+	if err != nil {
+		panic(err)
+	}
+	return strings.TrimSpace(string(bs))
+}
