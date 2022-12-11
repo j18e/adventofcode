@@ -11,11 +11,9 @@ import (
 )
 
 type Monkey struct {
-	Items          []int
-	Operation      func(i int) int
-	DivisibleBy    int
-	IfTrueThrowTo  int
-	IfFalseThrowTo int
+	Items     []int
+	Operation func(i int) int
+	Test      func(i int) int
 
 	Inspections int
 }
@@ -28,48 +26,44 @@ func main() {
 
 func run() error {
 	input := common.ReadInputString("input.txt")
-	monkeys := parseInput(input)
-	monkeyBusiness(monkeys, 20, true)
+	monkeys, lcm := parseInput(input)
+	monkeyBusiness(monkeys, 20, func(i int) int { return i / 3 })
+	monkeys, lcm = parseInput(input)
+	monkeyBusiness(monkeys, 10000, func(i int) int { return i % lcm })
 	return nil
 }
 
-func monkeyBusiness(mx []Monkey, rounds int, divideBy3 bool) {
+func monkeyBusiness(mx []Monkey, rounds int, op func(int) int) {
 	for i := 0; i < rounds; i++ {
-		runRound(mx, divideBy3)
+		runRound(mx, op)
 	}
 	var res []int
 	for _, m := range mx {
 		res = append(res, m.Inspections)
 	}
-	sort.Ints(res)
-	first := res[len(res)-1]
-	second := res[len(res)-2]
-	fmt.Println(first * second)
+	sort.Sort(sort.Reverse(sort.IntSlice(res)))
+	fmt.Println(res[0] * res[1])
 }
 
-func runRound(mx []Monkey, divideBy3 bool) {
+func runRound(mx []Monkey, op func(int) int) {
 	for mi, m := range mx {
 		for _, item := range m.Items {
 			mx[mi].Inspections++
-			item = m.Operation(item)
-			if divideBy3 {
-				item /= 3
-			}
-			if item%m.DivisibleBy == 0 {
-				mx[m.IfTrueThrowTo].Items = append(mx[m.IfTrueThrowTo].Items, item)
-			} else {
-				mx[m.IfFalseThrowTo].Items = append(mx[m.IfFalseThrowTo].Items, item)
-			}
+			item = op(m.Operation(item))
+			throwTo := m.Test(item)
+			mx[throwTo].Items = append(mx[throwTo].Items, item)
 		}
-		mx[mi].Items = []int{}
+		mx[mi].Items = nil
 	}
 }
 
-func parseInput(input string) []Monkey {
-	var monkeys []Monkey
+func parseInput(input string) ([]Monkey, int) {
+	monkeys := []Monkey{}
+	lcm := 1
 	for _, block := range strings.Split(input, "\n\n") {
 		lines := strings.Split(block, "\n")
 		monkey := Monkey{}
+		var divisibleBy, ifTrue, ifFalse int
 		for i, ln := range lines {
 			ln = strings.TrimSpace(ln)
 			switch i {
@@ -106,26 +100,27 @@ func parseInput(input string) []Monkey {
 					panic(ln)
 				}
 			case 3:
-				monkey.DivisibleBy = strToInt(strings.Split(ln, " ")[3])
+				divisibleBy = strToInt(strings.Split(ln, " ")[3])
 			case 4:
 				split := strings.Split(ln, " ")
-				if split[1] != "true:" {
-					panic("line[1] != true: " + split[1])
-				}
-				monkey.IfTrueThrowTo = strToInt(split[5])
+				ifTrue = strToInt(split[5])
 			case 5:
 				split := strings.Split(ln, " ")
-				if split[1] != "false:" {
-					panic(ln)
-				}
-				monkey.IfFalseThrowTo = strToInt(split[5])
+				ifFalse = strToInt(split[5])
 			default:
 				panic(fmt.Sprintf("unrecognized line %d: %s", i, ln))
 			}
 		}
+		monkey.Test = func(i int) int {
+			if i%divisibleBy == 0 {
+				return ifTrue
+			}
+			return ifFalse
+		}
 		monkeys = append(monkeys, monkey)
+		lcm *= divisibleBy
 	}
-	return monkeys
+	return monkeys, lcm
 }
 
 func strToInt(s string) int {
